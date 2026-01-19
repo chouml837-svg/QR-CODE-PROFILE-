@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Portfolio with Gradient Effects & Auto-Save</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:Poppins,system-ui;}
+body{margin:0;color:#111;overflow-x:hidden;background:#fff;}
+.profile{padding:80px 16px 20px;display:flex;flex-direction:column;align-items:center;}
+.profile-pic{width:140px;height:140px;border-radius:50%;border:2px dashed #bbb;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;}
+.profile-pic img{width:100%;height:100%;object-fit:cover;display:none;}
+.profile-pic span{font-size:36px;color:#777;}
+.profile-name{margin-top:14px;font-size:22px;font-weight:600;}
+.cards{max-width:700px;margin:20px auto;padding:0 16px;display:grid;gap:16px;}
+.card{position:relative;padding:16px;border:2px solid #000;border-radius:16px;background:#fff;overflow:hidden;transition: background 0.5s ease;}
+.card h4,.card p{position:relative;z-index:2;}
+.gallery{max-width:700px;margin:20px auto;padding:0 16px;}
+.gallery-header{display:flex;align-items:center;gap:10px;}
+.gallery-add{width:60px;height:60px;border-radius:50%;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:32px;}
+.gallery-grid{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;}
+.gallery-grid img{width:100%;height:110px;object-fit:cover;border-radius:14px;transition:.4s;}
+.gallery-grid img:hover{box-shadow:0 0 25px rgba(0,150,255,.7),0 0 40px rgba(255,120,0,.6);transform:scale(1.05);}
+
+/* MENU BUTTON */
+.menu-btn{position:fixed;top:20px;right:20px;width:50px;height:50px;border-radius:50%;background:#111;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;}
+.menu-line{display:block;width:24px;height:3px;margin:4px 0;background:#fff;border-radius:2px;transition: all 0.3s ease;}
+.menu-line.short{width:16px;}
+.menu-btn.open .menu-line:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+.menu-btn.open .menu-line:nth-child(2){opacity:0;}
+.menu-btn.open .menu-line:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+
+/* MENU PANEL */
+.menu-panel{position:fixed;top:70px;right:20px;width:240px;background:#fff;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.2);padding:16px;display:none;flex-direction:column;gap:10px;z-index:999;}
+.menu-panel button{padding:8px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer;width:100%;}
+
+/* SUB-MENU */
+.sub-menu{display:none;flex-direction:column;gap:6px;margin-left:10px;}
+.sub-menu button{background:#333;font-size:14px;color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- PROFILE -->
+<section class="profile">
+  <label class="profile-pic" id="profilePic">
+    <input type="file" id="profileInput" hidden>
+    <span id="plus">+</span>
+    <img id="profileImg">
+  </label>
+  <div class="profile-name" id="profileName" contenteditable>Your Name</div>
+</section>
+
+<!-- CARDS -->
+<section class="cards" id="cardsContainer">
+  <div class="card">
+    <h4>About Me</h4>
+    <p id="aboutMe" contenteditable>Write something about yourself.</p>
+  </div>
+  <div class="card">
+    <h4>Hobby</h4>
+    <p id="hobby" contenteditable>Your hobby here</p>
+  </div>
+  <div class="card">
+    <h4>Favorites</h4>
+    <p id="favorites" contenteditable>Your favorites here</p>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery">
+  <div class="gallery-header">
+    <h3>Gallery</h3>
+    <label class="gallery-add">+
+      <input type="file" id="galleryInput" hidden multiple>
+    </label>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<!-- MENU BUTTON -->
+<div class="menu-btn" id="menuBtn">
+  <span class="menu-line"></span>
+  <span class="menu-line short"></span>
+  <span class="menu-line"></span>
+</div>
+
+<!-- MENU PANEL -->
+<div class="menu-panel" id="menuPanel">
+  <button id="cardGradientBtn">Card Gradient</button>
+  <div class="sub-menu" id="cardGradientMenu">
+    <button data-gradient="linear-gradient(to right,#ff7e5f,#feb47b)">Sunset</button>
+    <button data-gradient="linear-gradient(to right,#43cea2,#185a9d)">Ocean</button>
+    <button data-gradient="linear-gradient(to right,#ffb347,#ffcc33)">Gold</button>
+    <button data-gradient="default">Remove</button>
+  </div>
+
+  <button id="bgGradientBtn">Background Gradient</button>
+  <div class="sub-menu" id="bgGradientMenu">
+    <button data-gradient="linear-gradient(to right,#f5af19,#f12711)">Fire</button>
+    <button data-gradient="linear-gradient(to right,#00c6ff,#0072ff)">Sky</button>
+    <button data-gradient="linear-gradient(to right,#f7971e,#ffd200)">Sunshine</button>
+    <button data-gradient="default">Remove</button>
+  </div>
+
+  <button onclick="resetBackground()">Reset Background</button>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
+  authDomain: "qr-code-project-21d42.firebaseapp.com",
+  projectId: "qr-code-project-21d42",
+  storageBucket: "qr-code-project-21d42.firebasestorage.app",
+  messagingSenderId: "919576901998",
+  appId: "1:919576901998:web:576d1eb1ca911afa5b697f",
+  measurementId: "G-2KNN0D52B6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+console.log("Firebase connected ✅");
+
+// ELEMENTS
+const profileNameEl = document.getElementById('profileName');
+const aboutMeEl = document.getElementById('aboutMe');
+const hobbyEl = document.getElementById('hobby');
+const favoritesEl = document.getElementById('favorites');
+const profileImgEl = document.getElementById('profileImg');
+const galleryGrid = document.getElementById('galleryGrid');
+
+// AUTO SAVE FUNCTION
+function autoSave() {
+  const data = {
+    profileName: profileNameEl.innerText,
+    aboutMe: aboutMeEl.innerText,
+    hobby: hobbyEl.innerText,
+    favorites: favoritesEl.innerText,
+    profileImg: profileImgEl.src || '',
+    gallery: Array.from(galleryGrid.querySelectorAll('img')).map(img=>img.src),
+    cardsGradient: Array.from(document.querySelectorAll('.card')).map(c=>c.style.background),
+    background: document.body.style.background
+  };
+  set(ref(db, 'portfolio/'), data).catch(err=>console.error("Error auto-saving:", err));
+}
+
+// OBSERVE CHANGES
+const observerConfig = { characterData: true, subtree: true, childList: true };
+const observer = new MutationObserver(autoSave);
+observer.observe(profileNameEl, observerConfig);
+observer.observe(aboutMeEl, observerConfig);
+observer.observe(hobbyEl, observerConfig);
+observer.observe(favoritesEl, observerConfig);
+observer.observe(galleryGrid, { childList:true, subtree:true });
+
+// PROFILE IMAGE CHANGE
+document.getElementById('profileInput').addEventListener('change', e=>{
+  const r=new FileReader();
+  r.onload=()=>{
+    profileImgEl.src=r.result;
+    profileImgEl.style.display="block";
+    document.getElementById('plus').style.display="none";
+    autoSave();
+  };
+  r.readAsDataURL(e.target.files[0]);
+});
+
+// GALLERY IMAGE ADD
+document.getElementById('galleryInput').addEventListener('change', e=>{
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=document.createElement('img');
+      img.src=r.result;
+      galleryGrid.appendChild(img);
+      autoSave();
+    };
+    r.readAsDataURL(f);
+  });
+});
+
+// MENU TOGGLES
+const menuBtn = document.getElementById('menuBtn');
+const menuPanel = document.getElementById('menuPanel');
+let menuOpen = false;
+menuBtn.addEventListener('click', ()=>{
+  menuOpen=!menuOpen;
+  menuBtn.classList.toggle('open', menuOpen);
+  menuPanel.style.display = menuOpen?'flex':'none';
+});
+
+// CARD GRADIENT
+const cardGradientBtn = document.getElementById('cardGradientBtn');
+const cardGradientMenu = document.getElementById('cardGradientMenu');
+cardGradientBtn.addEventListener('click', ()=>cardGradientMenu.style.display = cardGradientMenu.style.display==='flex'?'none':'flex');
+cardGradientMenu.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const gradient = btn.dataset.gradient;
+    document.querySelectorAll('.card').forEach(card=>{
+      card.style.background = (gradient==='default') ? '#fff' : gradient;
+    });
+    autoSave();
+  });
+});
+
+// BACKGROUND GRADIENT
+const bgGradientBtn = document.getElementById('bgGradientBtn');
+const bgGradientMenu = document.getElementById('bgGradientMenu');
+bgGradientBtn.addEventListener('click', ()=>bgGradientMenu.style.display = bgGradientMenu.style.display==='flex'?'none':'flex');
+bgGradientMenu.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.body.style.background = (btn.dataset.gradient==='default') ? '#fff' : btn.dataset.gradient;
+    autoSave();
+  });
+});
+
+function resetBackground(){document.body.style.background='#fff'; autoSave();}
+</script>
+</body>
+</html>
