@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aura | Digital Identity</title>
+    <title>Rap's Project | Digital Identity</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #6366f1; --neon-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.05); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
         
-        #loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* Removed loader styles - now instant load */
         .setup-screen, #app-content { display: none; padding: 40px 20px; max-width: 500px; margin: 0 auto; text-align: center; }
-        .hero-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
+        .hero-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: var(--neon-blue); }
         
         .avatar-box { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 40px; background: #111; border: 2px solid var(--neon-blue); overflow: hidden; }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -26,39 +23,137 @@
         
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #0a0a0a; border: 1px solid #333; padding: 30px; border-radius: 30px; width: 100%; max-width: 400px; }
-        #edit-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #fff; color: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; }
+        #edit-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #fff; color: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <h2 id="load-status"> Rap Rap</h2>
-    </div>
-
+    <!-- Setup Screen (Unclaimed) -->
     <div id="setup-screen" class="setup-screen">
-        <h1 class="hero-title"> New Rap</h1>
-        <p style="color:#888; margin-bottom:30px">This QR is ready to be claimed.</p>
+        <h1 class="hero-title">Get Started</h1>
+        <p style="color:#888; margin-bottom:30px">Welcome to Rap's Project.<br>This QR is ready to be claimed.</p>
         <input type="text" id="setupName" class="input-field" placeholder="Full Name">
         <input type="password" id="setupPin" class="input-field" placeholder="Create 4-digit PIN">
-        <button class="primary-btn" onclick="claimProfile()">Create Profile</button>
+        <button class="primary-btn" onclick="claimProfile()">Create My Profile</button>
     </div>
 
+    <!-- Profile View (Claimed) -->
     <div id="app-content">
         <div class="avatar-box"><img id="pAvatar" src=""></div>
         <h1 id="pName">---</h1>
-        <p id="pBio" style="color:#888">Profile ID: <span id="displayId"></span></p>
+        <p id="pBio" style="color:#888">Rap's Project ID: <span id="displayId"></span></p>
         <div class="info-card">
             <h4 style="color:var(--neon-blue); margin-top:0">ABOUT</h4>
             <p id="pAbout">...</p>
         </div>
     </div>
 
+    <!-- Security Modals -->
     <div id="pin-modal" class="modal">
         <div class="modal-content">
             <h3>Unlock Editor</h3>
             <input type="password" id="pinInput" class="input-field" placeholder="Enter PIN">
             <button class="primary-btn" onclick="verifyPin()">Unlock</button>
+            <button onclick="closeModal('pin-modal')" style="background:none; border:none; color:#555; margin-top:15px; width:100%">Cancel</button>
+        </div>
+    </div>
+
+    <div id="edit-panel" class="modal">
+        <div class="modal-content">
+            <h3>Edit Profile</h3>
+            <input type="text" id="editName" class="input-field" placeholder="Name">
+            <textarea id="editAbout" class="input-field" placeholder="About" style="height:80px"></textarea>
+            <button class="primary-btn" onclick="saveChanges()">Save Changes</button>
+        </div>
+    </div>
+
+    <div id="edit-fab" onclick="document.getElementById('pin-modal').style.display='flex'">✎</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
+            authDomain: "qr-code-project-21d42.firebaseapp.com",
+            projectId: "qr-code-project-21d42",
+            databaseURL: "https://qr-code-project-21d42-default-rtdb.firebaseio.com",
+            appId: "1:919576901998:web:576d1eb1ca911afa5b697f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const urlParams = new URLSearchParams(window.location.search);
+        const auraId = urlParams.get('id');
+
+        window.onload = async () => {
+            if(!auraId) {
+                document.body.innerHTML = "<div style='padding:50px; text-align:center'><h2>Rap's Project</h2><p>Please scan a valid QR code to continue.</p></div>";
+                return;
+            }
+
+            try {
+                const snapshot = await get(ref(db, `profiles/${auraId}`));
+                document.getElementById('displayId').innerText = auraId;
+
+                if(snapshot.exists()) {
+                    document.getElementById('app-content').style.display = 'block';
+                    listenToData();
+                } else {
+                    document.getElementById('setup-screen').style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Database connection failed. Please check your internet.");
+            }
+        };
+
+        window.claimProfile = async () => {
+            const name = document.getElementById('setupName').value;
+            const pin = document.getElementById('setupPin').value;
+            if(!name || pin.length < 4) return alert("Please enter your name and a 4-digit PIN");
+            
+            await set(ref(db, `profiles/${auraId}`), {
+                name, pin, about: "Welcome to my digital profile!",
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+            });
+            location.reload();
+        };
+
+        function listenToData() {
+            onValue(ref(db, `profiles/${auraId}`), (snap) => {
+                const data = snap.val();
+                if(!data) return;
+                document.getElementById('pName').innerText = data.name;
+                document.getElementById('pAbout').innerText = data.about;
+                document.getElementById('pAvatar').src = data.avatar;
+                document.getElementById('editName').value = data.name;
+                document.getElementById('editAbout').value = data.about;
+            });
+        }
+
+        window.verifyPin = async () => {
+            const pin = document.getElementById('pinInput').value;
+            const snap = await get(ref(db, `profiles/${auraId}/pin`));
+            if(snap.val() === pin) {
+                document.getElementById('pin-modal').style.display = 'none';
+                document.getElementById('edit-panel').style.display = 'flex';
+            } else { alert("Incorrect PIN"); }
+        };
+
+        window.saveChanges = async () => {
+            await update(ref(db, `profiles/${auraId}`), {
+                name: document.getElementById('editName').value,
+                about: document.getElementById('editAbout').value
+            });
+            document.getElementById('edit-panel').style.display = 'none';
+        };
+
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    </script>
+</body>
+</html>
+
             <button onclick="closeModal('pin-modal')" style="background:none; border:none; color:#555; margin-top:15px; width:100%">Cancel</button>
         </div>
     </div>
