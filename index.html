@@ -1,186 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rap's Project | Digital Identity</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --accent: #6366f1; --neon-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.08); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        
-        .container { width: 100%; max-width: 450px; padding: 20px; text-align: center; display: none; }
-        
-        /* Menu Screen */
-        .menu-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 35px; backdrop-filter: blur(10px); }
-        .hero-title { font-size: 2rem; font-weight: 800; margin-bottom: 30px; color: var(--neon-blue); }
-        
-        /* Buttons */
-        .primary-btn { background: #fff; color: #000; border: none; padding: 20px; border-radius: 20px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .secondary-btn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 20px; border-radius: 20px; font-weight: 800; cursor: pointer; width: 100%; font-size: 1.1rem; }
-        .primary-btn:active, .secondary-btn:active { transform: scale(0.98); }
-        
-        /* Profile View */
-        .avatar-box { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 40px; background: #111; border: 3px solid var(--neon-blue); overflow: hidden; }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .info-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; text-align: left; margin-top: 20px; }
-        
-        /* Inputs */
-        .input-field { width: 100%; background: #1a1a1a; border: 1px solid #333; padding: 18px; border-radius: 18px; color: #fff !important; margin-bottom: 15px; font-size: 16px; text-align: center; }
-        
-        /* Modals */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #0a0a0a; border: 1px solid #222; padding: 30px; border-radius: 30px; width: 100%; max-width: 400px; }
-        
-        #back-btn { position: fixed; top: 20px; left: 20px; background: var(--glass); padding: 10px 15px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Portfolio – Enhanced Neon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;font-family:Poppins,system-ui}
+body{
+  margin:0;
+  background:#fff;
+  color:#111;
+  animation:pageEnter .8s ease forwards;
+}
+
+/* PAGE LOAD */
+@keyframes pageEnter{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:none}
+}
+
+/* ================= PROFILE ================= */
+.profile{
+  padding:80px 16px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.profile-pic{
+  width:140px;height:140px;
+  border-radius:50%;
+  border:2px dashed #aaa;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  overflow:hidden;
+}
+.profile-pic img{width:100%;height:100%;object-fit:cover;display:none}
+.profile-pic span{font-size:36px;color:#777}
+.profile-name{margin-top:14px;font-size:22px;font-weight:600}
+
+/* ================= CARDS ================= */
+.cards{
+  max-width:700px;
+  margin:20px auto;
+  padding:0 16px;
+  display:grid;
+  gap:18px;
+}
+.card{
+  padding:18px;
+  border-radius:18px;
+  background:#fff;
+  border:2px solid #000;
+  transition:.25s;
+}
+.card.selected{outline:3px solid #000}
+
+/* NEON CARD */
+.card.neon{background:#000;color:#fff}
+.card.neon-blue{
+  border-color:#00f0ff;
+  box-shadow:0 0 10px #00f0ff,0 0 30px rgba(0,240,255,.9);
+}
+.card.neon-pink{
+  border-color:#ff00e6;
+  box-shadow:0 0 10px #ff00e6,0 0 30px rgba(255,0,230,.9);
+}
+.card.neon-green{
+  border-color:#00ff9c;
+  box-shadow:0 0 10px #00ff9c,0 0 30px rgba(0,255,156,.9);
+}
+
+/* ================= GALLERY ================= */
+.gallery{max-width:700px;margin:20px auto;padding:0 16px}
+.gallery-header{display:flex;align-items:center;gap:10px}
+.gallery-add{
+  width:60px;height:60px;
+  border-radius:50%;
+  border:2px dashed #aaa;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:32px;
+}
+.gallery-grid{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+  gap:12px;
+}
+.photo{position:relative}
+.photo img{
+  width:100%;
+  height:110px;
+  object-fit:cover;
+  border-radius:14px;
+  transition:.25s;
+}
+.photo:hover img,
+.photo.glow img{
+  box-shadow:0 0 15px #00f0ff,0 0 30px #ff00e6;
+  transform:scale(1.05);
+}
+.remove-photo{
+  position:absolute;
+  top:6px;right:6px;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:#000;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+/* ================= MENU ================= */
+.menu-btn{
+  position:fixed;
+  top:20px;right:20px;
+  width:50px;height:50px;
+  border-radius:50%;
+  background:#000;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:1000;
+  transition:.3s;
+}
+.menu-btn.open{
+  transform:rotate(90deg) scale(1.1);
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+
+.menu-panel{
+  position:fixed;
+  top:80px;right:16px;
+  width:260px;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  padding:16px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  animation:menuIn .35s ease forwards;
+}
+@keyframes menuIn{
+  from{opacity:0;transform:translateY(-10px) scale(.95)}
+  to{opacity:1;transform:none}
+}
+
+.menu-title{
+  background:#000;
+  color:#fff;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:600;
+}
+.menu-panel button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#333;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* ================= BACKGROUND EFFECTS ================= */
+.bg-animate{
+  background-size:400% 400%;
+  animation:bgMove 10s ease infinite;
+}
+@keyframes bgMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+</style>
 </head>
+
 <body>
 
-    <div id="back-btn" style="display:none" onclick="location.reload()">← Back</div>
+<section class="profile">
+  <label class="profile-pic">
+    <input type="file" id="profileInput" hidden>
+    <span id="plus">+</span>
+    <img id="profileImg">
+  </label>
+  <div class="profile-name" contenteditable>Your Name</div>
+</section>
 
-    <!-- 1. Selection Menu -->
-    <div id="menu-screen" class="container">
-        <div class="menu-card">
-            <h1 class="hero-title">Rap's Project</h1>
-            <p style="color:#888; margin-bottom:40px">Aura ID: <span id="menuId"></span></p>
-            <button class="primary-btn" onclick="showSection('profile-view')"><span>👁</span> View Profile</button>
-            <button class="secondary-btn" onclick="openPinModal()"><span>✎</span> Edit Profile</button>
-        </div>
-    </div>
+<section class="cards">
+  <div class="card"><h4>About Me</h4><p contenteditable>Write something about yourself.</p></div>
+  <div class="card"><h4>Hobby</h4><p contenteditable>Your hobby here</p></div>
+  <div class="card"><h4>Favorites</h4><p contenteditable>Your favorites here</p></div>
+</section>
 
-    <!-- 2. Setup / Get Started Screen -->
-    <div id="setup-screen" class="container">
-        <h1 class="hero-title">Get Started</h1>
-        <p style="color:#888; margin-bottom:30px">This QR code hasn't been claimed yet.</p>
-        <input type="text" id="setupName" class="input-field" placeholder="Full Name">
-        <input type="password" id="setupPin" class="input-field" placeholder="Create 4-digit PIN" inputmode="numeric">
-        <button class="primary-btn" onclick="claimProfile()">Create My Profile</button>
-    </div>
+<section class="gallery">
+  <div class="gallery-header">
+    <h3>Gallery</h3>
+    <label class="gallery-add">+
+      <input type="file" id="galleryInput" hidden multiple>
+    </label>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
 
-    <!-- 3. Profile View -->
-    <div id="profile-view" class="container">
-        <div class="avatar-box"><img id="pAvatar" src=""></div>
-        <h1 id="pName" style="margin:0">---</h1>
-        <div class="info-card">
-            <h4 style="color:var(--neon-blue); margin:0 0 10px 0; font-size:0.7rem; text-transform:uppercase">About</h4>
-            <p id="pAbout" style="margin:0; color:#ccc; line-height:1.6">...</p>
-        </div>
-    </div>
+<div class="menu-btn" id="menuBtn">☰</div>
 
-    <!-- Security PIN Modal -->
-    <div id="pin-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0">Verify PIN</h3>
-            <input type="password" id="pinInput" class="input-field" placeholder="Enter PIN" inputmode="numeric" style="letter-spacing:8px; font-size:1.5rem">
-            <button class="primary-btn" onclick="verifyPin()">Unlock Editor</button>
-            <button class="secondary-btn" onclick="closeModal('pin-modal')" style="margin-top:10px; border:none; background:none; color:#555">Cancel</button>
-        </div>
-    </div>
+<div class="menu-panel" id="menuPanel">
+  <div class="menu-title">Card Neon</div>
+  <button onclick="applyNeon('blue')">Electric Blue</button>
+  <button onclick="applyNeon('pink')">Pink Pulse</button>
+  <button onclick="applyNeon('green')">Cyber Green</button>
+  <button onclick="applyNeon('none')">Remove</button>
 
-    <!-- Edit Panel -->
-    <div id="edit-panel" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0">Edit Profile</h3>
-            <input type="text" id="editName" class="input-field" placeholder="Name">
-            <textarea id="editAbout" class="input-field" placeholder="About you..." style="height:120px; text-align:left"></textarea>
-            <button class="primary-btn" onclick="saveChanges()">Save Changes</button>
-        </div>
-    </div>
+  <div class="menu-title">Background</div>
+  <button onclick="setBg('linear-gradient(120deg,#00f0ff,#ff00e6)',true)">Neon Flow</button>
+  <button onclick="setBg('linear-gradient(120deg,#ff512f,#dd2476)',true)">Fire Pink</button>
+  <button onclick="setBg('linear-gradient(120deg,#43cea2,#185a9d)',true)">Mint Sky</button>
+  <button onclick="setBg('#fff',false)">Reset</button>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<script>
+/* MENU */
+menuBtn.onclick=()=>{
+  menuPanel.style.display=
+    menuPanel.style.display==='flex'?'none':'flex';
+  menuBtn.classList.toggle('open');
+};
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
-            authDomain: "qr-code-project-21d42.firebaseapp.com",
-            projectId: "qr-code-project-21d42",
-            databaseURL: "https://qr-code-project-21d42-default-rtdb.firebaseio.com",
-            appId: "1:919576901998:web:576d1eb1ca911afa5b697f"
-        };
+/* CARD SELECT */
+let selectedCard=null;
+document.querySelectorAll('.card').forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll('.card').forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected');
+    selectedCard=c;
+  };
+});
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        
-        let urlParams = new URLSearchParams(window.location.search);
-        let auraId = urlParams.get('id');
+/* CARD NEON */
+function applyNeon(type){
+  if(!selectedCard)return alert("Tap a card first");
+  selectedCard.className='card selected';
+  if(type!=='none'){
+    selectedCard.classList.add('neon',`neon-${type}`);
+  }
+}
 
-        // Logic for Test Page
-        if (!auraId) {
-            auraId = "0000"; // Demonstration ID
-        }
+/* BACKGROUND */
+function setBg(bg,animate){
+  document.body.style.background=bg;
+  document.body.classList.toggle('bg-animate',animate);
+}
 
-        window.onload = async () => {
-            const snap = await get(ref(db, `profiles/${auraId}`));
-            
-            // If ID 0000 doesn't exist yet, create the test profile automatically
-            if (auraId === "0000" && !snap.exists()) {
-                await set(ref(db, `profiles/0000`), {
-                    name: "Test User",
-                    pin: "12345",
-                    about: "This is a demonstration profile. You can edit this using PIN 12345.",
-                    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Test"
-                });
-                location.reload();
-                return;
-            }
+/* PROFILE */
+profileInput.onchange=e=>{
+  const r=new FileReader();
+  r.onload=()=>{
+    profileImg.src=r.result;
+    profileImg.style.display='block';
+    plus.style.display='none';
+  };
+  r.readAsDataURL(e.target.files[0]);
+};
 
-            if (snap.exists()) {
-                const data = snap.val();
-                document.getElementById('menuId').innerText = auraId;
-                document.getElementById('pName').innerText = data.name;
-                document.getElementById('pAbout').innerText = data.about;
-                document.getElementById('pAvatar').src = data.avatar;
-                document.getElementById('editName').value = data.name;
-                document.getElementById('editAbout').value = data.about;
-                showSection('menu-screen');
-            } else {
-                showSection('setup-screen');
-            }
-        };
+/* GALLERY */
+galleryInput.onchange=e=>{
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const wrap=document.createElement('div');
+      wrap.className='photo';
+      wrap.innerHTML=`<img src="${r.result}">
+      <div class="remove-photo">×</div>`;
+      wrap.addEventListener('touchstart',()=>wrap.classList.add('glow'));
+      wrap.addEventListener('touchend',()=>wrap.classList.remove('glow'));
+      wrap.querySelector('.remove-photo').onclick=()=>wrap.remove();
+      galleryGrid.appendChild(wrap);
+    };
+    r.readAsDataURL(f);
+  });
+  galleryInput.value="";
+};
+</script>
 
-        window.showSection = (id) => {
-            document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            document.getElementById('back-btn').style.display = (id === 'menu-screen' || id === 'setup-screen') ? 'none' : 'block';
-        };
-
-        window.claimProfile = async () => {
-            const name = document.getElementById('setupName').value;
-            const pin = document.getElementById('setupPin').value;
-            if(!name || pin.length < 4) return alert("Enter Name and 4-digit PIN");
-            await set(ref(db, `profiles/${auraId}`), {
-                name, pin, about: "New profile created.",
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-            });
-            location.reload();
-        };
-
-        window.openPinModal = () => document.getElementById('pin-modal').style.display = 'flex';
-        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-
-        window.verifyPin = async () => {
-            const pin = document.getElementById('pinInput').value;
-            const snap = await get(ref(db, `profiles/${auraId}/pin`));
-            if (snap.val() === pin) {
-                closeModal('pin-modal');
-                document.getElementById('edit-panel').style.display = 'flex';
-            } else { alert("Wrong PIN"); }
-        };
-
-        window.saveChanges = async () => {
-            const name = document.getElementById('editName').value;
-            await update(ref(db, `profiles/${auraId}`), {
-                name: name,
-                about: document.getElementById('editAbout').value,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-            });
-            location.reload();
-        };
-    </script>
 </body>
 </html>
-
-                
