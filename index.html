@@ -6,89 +6,116 @@
     <title>Rap's Project | Digital Identity</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #6366f1; --neon-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --accent: #6366f1; --neon-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.08); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
         
-        /* Removed loader styles - now instant load */
+        /* Layouts */
         .setup-screen, #app-content { display: none; padding: 40px 20px; max-width: 500px; margin: 0 auto; text-align: center; }
-        .hero-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: var(--neon-blue); }
         
-        .avatar-box { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 40px; background: #111; border: 2px solid var(--neon-blue); overflow: hidden; }
+        /* Typography */
+        .hero-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: var(--neon-blue); letter-spacing: -1px; }
+        
+        /* Profile Components */
+        .avatar-box { width: 140px; height: 140px; margin: 0 auto 24px; border-radius: 50px; background: #111; border: 3px solid var(--neon-blue); overflow: hidden; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .info-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; margin-bottom: 15px; text-align: left; }
         
-        .primary-btn { background: #fff; color: #000; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
-        .input-field { width: 100%; background: #111; border: 1px solid #333; padding: 15px; border-radius: 15px; color: #fff; margin-bottom: 10px; }
+        .info-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 28px; padding: 24px; margin-bottom: 20px; text-align: left; backdrop-filter: blur(10px); }
         
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #0a0a0a; border: 1px solid #333; padding: 30px; border-radius: 30px; width: 100%; max-width: 400px; }
-        #edit-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #fff; color: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; opacity: 0.8; }
+        /* Inputs & Buttons */
+        .primary-btn { background: #fff; color: #000; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; font-size: 1rem; }
+        .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
+        
+        .input-field { 
+            width: 100%; background: #1a1a1a; border: 1px solid #333; padding: 16px; border-radius: 18px; 
+            color: #ffffff !important; margin-bottom: 15px; font-size: 16px; font-family: inherit;
+        }
+        .input-field::placeholder { color: #555; }
+        
+        /* Modals */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #0f0f0f; border: 1px solid #222; padding: 35px; border-radius: 35px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        /* FAB */
+        #edit-fab { position: fixed; bottom: 30px; right: 30px; width: 64px; height: 64px; background: #fff; color: #000; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <!-- Setup Screen (Unclaimed) -->
+    <!-- Setup Screen (Shown only if ID is new/unclaimed) -->
     <div id="setup-screen" class="setup-screen">
         <h1 class="hero-title">Get Started</h1>
-        <p style="color:#888; margin-bottom:30px">Welcome to Rap's Project.<br>This QR is ready to be claimed.</p>
-        <input type="text" id="setupName" class="input-field" placeholder="Full Name">
-        <input type="password" id="setupPin" class="input-field" placeholder="Create 4-digit PIN">
+        <p style="color:#888; margin-bottom:30px">Welcome to Rap's Project.<br>Claim this QR profile to begin.</p>
+        <input type="text" id="setupName" class="input-field" placeholder="Your Full Name">
+        <input type="password" id="setupPin" class="input-field" placeholder="Create 4-digit Edit PIN" inputmode="numeric">
         <button class="primary-btn" onclick="claimProfile()">Create My Profile</button>
     </div>
 
-    <!-- Profile View (Claimed) -->
+    <!-- Profile View (Direct scan destination) -->
     <div id="app-content">
         <div class="avatar-box"><img id="pAvatar" src=""></div>
-        <h1 id="pName">---</h1>
-        <p id="pBio" style="color:#888">Rap's Project ID: <span id="displayId"></span></p>
+        <h1 id="pName" style="margin-bottom:5px">---</h1>
+        <p id="pBio" style="color:#555; margin-bottom:30px">Rap's Project ID: <span id="displayId" style="color:#888"></span></p>
+        
         <div class="info-card">
-            <h4 style="color:var(--neon-blue); margin-top:0">ABOUT</h4>
-            <p id="pAbout">...</p>
+            <h4 style="color:var(--neon-blue); margin-top:0; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;">About Me</h4>
+            <p id="pAbout" style="line-height: 1.6; color: #ccc; margin-bottom:0">...</p>
         </div>
     </div>
 
-    <!-- Security Modals -->
+    <!-- Edit Mode Security -->
     <div id="pin-modal" class="modal">
         <div class="modal-content">
-            <h3>Unlock Editor</h3>
-            <input type="password" id="pinInput" class="input-field" placeholder="Enter PIN">
+            <h3 style="margin-top:0">Verify Identity</h3>
+            <p style="color:#666; font-size: 0.9rem;">Enter your PIN to edit this profile.</p>
+            <input type="password" id="pinInput" class="input-field" placeholder="Enter PIN" style="text-align:center; font-size:1.5rem; letter-spacing:5px" inputmode="numeric">
             <button class="primary-btn" onclick="verifyPin()">Unlock</button>
-            <button onclick="closeModal('pin-modal')" style="background:none; border:none; color:#555; margin-top:15px; width:100%">Cancel</button>
+            <button onclick="closeModal('pin-modal')" style="background:none; border:none; color:#444; margin-top:20px; width:100%; cursor:pointer">Cancel</button>
         </div>
     </div>
 
+    <!-- Editor Panel -->
     <div id="edit-panel" class="modal">
-        <div class="modal-content">
-            <h3>Edit Profile</h3>
+        <div class="modal-content" style="max-width: 450px;">
+            <h3 style="margin-top:0">Edit Profile</h3>
+            <label style="display:block; text-align:left; font-size:0.7rem; color:#555; margin-left:10px; margin-bottom:5px">DISPLAY NAME</label>
             <input type="text" id="editName" class="input-field" placeholder="Name">
-            <textarea id="editAbout" class="input-field" placeholder="About" style="height:80px"></textarea>
+            
+            <label style="display:block; text-align:left; font-size:0.7rem; color:#555; margin-left:10px; margin-bottom:5px">BIO / INFO</label>
+            <textarea id="editAbout" class="input-field" placeholder="Write something about yourself..." style="height:120px; resize: none;"></textarea>
+            
             <button class="primary-btn" onclick="saveChanges()">Save Changes</button>
         </div>
     </div>
 
+    <!-- The Edit Button -->
     <div id="edit-fab" onclick="document.getElementById('pin-modal').style.display='flex'">✎</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Your specific Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
             authDomain: "qr-code-project-21d42.firebaseapp.com",
             projectId: "qr-code-project-21d42",
-            databaseURL: "https://qr-code-project-21d42-default-rtdb.firebaseio.com",
-            appId: "1:919576901998:web:576d1eb1ca911afa5b697f"
+            storageBucket: "qr-code-project-21d42.firebasestorage.app",
+            messagingSenderId: "919576901998",
+            appId: "1:919576901998:web:576d1eb1ca911afa5b697f",
+            measurementId: "G-2KNN0D52B6",
+            databaseURL: "https://qr-code-project-21d42-default-rtdb.firebaseio.com"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
         const urlParams = new URLSearchParams(window.location.search);
         const auraId = urlParams.get('id');
 
         window.onload = async () => {
             if(!auraId) {
-                document.body.innerHTML = "<div style='padding:50px; text-align:center'><h2>Rap's Project</h2><p>Please scan a valid QR code to continue.</p></div>";
+                document.body.innerHTML = "<div style='padding:80px 20px; text-align:center'><h2 style='color:white; font-weight:800'>Rap's Project</h2><p style='color:#555'>No ID detected. Please scan a QR code.</p></div>";
                 return;
             }
 
@@ -97,14 +124,15 @@
                 document.getElementById('displayId').innerText = auraId;
 
                 if(snapshot.exists()) {
+                    // CLAIMED: Go straight to profile
                     document.getElementById('app-content').style.display = 'block';
                     listenToData();
                 } else {
+                    // UNCLAIMED: Go to setup
                     document.getElementById('setup-screen').style.display = 'block';
                 }
             } catch (err) {
-                console.error(err);
-                alert("Database connection failed. Please check your internet.");
+                console.error("Firebase Error:", err);
             }
         };
 
@@ -114,7 +142,7 @@
             if(!name || pin.length < 4) return alert("Please enter your name and a 4-digit PIN");
             
             await set(ref(db, `profiles/${auraId}`), {
-                name, pin, about: "Welcome to my digital profile!",
+                name, pin, about: "Welcome to my digital profile! Scan my QR to see my info.",
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
             });
             location.reload();
@@ -127,6 +155,7 @@
                 document.getElementById('pName').innerText = data.name;
                 document.getElementById('pAbout').innerText = data.about;
                 document.getElementById('pAvatar').src = data.avatar;
+                // Pre-fill editor inputs
                 document.getElementById('editName').value = data.name;
                 document.getElementById('editAbout').value = data.about;
             });
@@ -138,146 +167,24 @@
             if(snap.val() === pin) {
                 document.getElementById('pin-modal').style.display = 'none';
                 document.getElementById('edit-panel').style.display = 'flex';
-            } else { alert("Incorrect PIN"); }
+                document.getElementById('pinInput').value = ''; // Clear for security
+            } else { 
+                alert("Incorrect PIN. Access Denied."); 
+                document.getElementById('pinInput').value = '';
+            }
         };
 
         window.saveChanges = async () => {
+            const newName = document.getElementById('editName').value;
             await update(ref(db, `profiles/${auraId}`), {
-                name: document.getElementById('editName').value,
-                about: document.getElementById('editAbout').value
-            });
-            document.getElementById('edit-panel').style.display = 'none';
-        };
-
-        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    </script>
-</body>
-</html>
-
-            <button onclick="closeModal('pin-modal')" style="background:none; border:none; color:#555; margin-top:15px; width:100%">Cancel</button>
-        </div>
-    </div>
-
-    <div id="edit-panel" class="modal">
-        <div class="modal-content">
-            <h3>Edit Profile</h3>
-            <input type="text" id="editName" class="input-field" placeholder="Name">
-            <textarea id="editAbout" class="input-field" placeholder="About" style="height:80px"></textarea>
-            <button class="primary-btn" onclick="saveChanges()">Save Changes</button>
-        </div>
-    </div>
-
-    <div id="edit-fab" onclick="document.getElementById('pin-modal').style.display='flex'">✎</div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
-            authDomain: "qr-code-project-21d42.firebaseapp.com",
-            projectId: "qr-code-project-21d42",
-            databaseURL: "https://qr-code-project-21d42-default-rtdb.firebaseio.com",
-            appId: "1:919576901998:web:576d1eb1ca911afa5b697f"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const urlParams = new URLSearchParams(window.location.search);
-        const auraId = urlParams.get('id');
-
-        // Fail-safe timeout
-        const loadTimer = setTimeout(() => {
-            document.getElementById('load-status').innerText = "CONNECTION SLOW...";
-            document.getElementById('load-status').style.color = "orange";
-        }, 5000);
-
-        window.onload = async () => {
-            if(!auraId) {
-                document.getElementById('loader').innerHTML = "<h2>Invalid Link</h2><p>Please scan a QR code.</p>";
-                return;
-            }
-
-            try {
-                const snapshot = await get(ref(db, `profiles/${auraId}`));
-                clearTimeout(loadTimer);
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('displayId').innerText = auraId;
-
-                if(snapshot.exists()) {
-                    document.getElementById('app-content').style.display = 'block';
-                    listenToData();
-                } else {
-                    document.getElementById('setup-screen').style.display = 'block';
-                }
-            } catch (err) {
-                document.getElementById('load-status').innerText = "DATABASE ERROR";
-                console.error(err);
-            }
-        };
-
-        window.claimProfile = async () => {
-            const name = document.getElementById('setupName').value;
-            const pin = document.getElementById('setupPin').value;
-            if(!name || pin.length < 4) return alert("Fill all fields (PIN 4+ digits)");
-            
-            await set(ref(db, `profiles/${auraId}`), {
-                name, pin, about: "New Aura user.",
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-            });
-            location.reload();
-        };
-
-        function listenToData() {
-            onValue(ref(db, `profiles/${auraId}`), (snap) => {
-                const data = snap.val();
-                document.getElementById('pName').innerText = data.name;
-                document.getElementById('pAbout').innerText = data.about;
-                document.getElementById('pAvatar').src = data.avatar;
-                document.getElementById('editName').value = data.name;
-                document.getElementById('editAbout').value = data.about;
-            });
-        }
-
-        window.verifyPin = async () => {
-            const pin = document.getElementById('pinInput').value;
-            const snap = await get(ref(db, `profiles/${auraId}/pin`));
-            if(snap.val() === pin) {
-                document.getElementById('pin-modal').style.display = 'none';
-                document.getElementById('edit-panel').style.display = 'flex';
-            } else { alert("Incorrect PIN"); }
-        };
-
-        window.saveChanges = async () => {
-            await update(ref(db, `profiles/${auraId}`), {
-                name: document.getElementById('editName').value,
-                about: document.getElementById('editAbout').value
-            });
-            document.getElementById('edit-panel').style.display = 'none';
-        };
-
-        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    </script>
-</body>
-</html>
-
-else {
-                alert("Wrong PIN");
-            }
-        };
-
-        window.saveChanges = async () => {
-            const updates = {
-                name: document.getElementById('editName').value,
+                name: newName,
                 about: document.getElementById('editAbout').value,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${document.getElementById('editAvatar').value || document.getElementById('editName').value}`
-            };
-            await update(ref(db, `profiles/${auraId}`), updates);
-            closeModal('edit-panel');
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newName}`
+            });
+            document.getElementById('edit-panel').style.display = 'none';
         };
+
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
     </script>
 </body>
 </html>
