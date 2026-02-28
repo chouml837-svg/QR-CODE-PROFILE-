@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coditag - Profile</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ============ BASE STYLES ============ */
+:root{
+  --accent:#7c3aed;
+  --accent-secondary:#ec4899;
+  --page-bg:linear-gradient(135deg,#eef2ff,#fdfbff);
+  --card-bg:rgba(255,255,255,0.85);
+  --text-primary:#1f2937;
+  --text-secondary:#6b7280;
+  --border-color:rgba(0,0,0,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,sans-serif}
+
+body{
+  background:var(--page-bg);
+  min-height:100vh;
+  padding:0;
+  color:var(--text-primary);
+  overflow-x:hidden;
+}
+
+.container{max-width:1000px;margin:auto;padding:0 20px 40px}
+
+.hidden{display:none!important}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(0.3)}50%{transform:scale(1.05)}70%{transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ============ LOADER ============ */
+.loader{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:white;z-index:99999;gap:25px;
+}
+.loader-spinner{width:70px;height:70px;border:5px solid var(--border-color);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+
+/* ============ CLAIM SCREEN ============ */
+.claim{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--page-bg);z-index:9999;animation:fadeIn 0.5s ease}
+.claim-card{background:white;padding:50px;border-radius:32px;max-width:420px;width:90%;text-align:center;box-shadow:0 30px 100px rgba(0,0,0,0.2);animation:bounceIn 0.6s ease}
+.claim-card h2{font-size:32px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:15px}
+.claim-card p{font-size:16px;color:var(--text-secondary);margin-bottom:30px;line-height:1.7}
+.claim-card button{padding:16px 35px;width:100%;border:none;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));color:white;font-weight:700;font-size:17px;cursor:pointer;transition:all 0.4s}
+.claim-card button:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(124,58,237,0.5)}
+
+/* ============ EDIT INDICATOR ============ */
+.edit-indicator{position:flex;
+top:25px;
+left:50%;
+transform:translateX(-50%);
+background:linear-gradient(135deg,var(--accent),var(--accent-secondary));
+color:white;
+padding:12px 28px;
+border-radius:30px;
+font-weight:700;
+font-size:14px;
+display:none;
+align-items:center;gap:10px;
+z-index:1000;
+box-shadow:0 10px 35px rgba(124,58,237,0.5);
+animation:float 2s ease-in-out infinite}
+.edit-indicator.active{display:flex}
+
+/* ============ TEMPLATE SELECTOR ============ */
+.template-selector{position:fixed;top:20px;right:20px;background:white;padding:15px 20px;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:100;display:flex;align-items:center;gap:12px}
+.template-selector span{font-size:13px;font-weight:600;color:var(--text-secondary)}
+.template-selector select{padding:10px 15px;border-radius:10px;border:2px solid var(--border-color);font-size:14px;font-weight:600;cursor:pointer;outline:none;transition:all 0.3s}
+.template-selector select:focus{border-color:var(--accent)}
+
+/* ============ MODALS ============ */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(8px);animation:fadeIn 0.3s ease}
+.modal-card{background:white;padding:35px;border-radius:28px;width:90%;max-width:400px;text-align:center;box-shadow:0 30px 100px rgba(0,0,0,0.4);animation:bounceIn 0.5s ease}
+.modal-card h3{font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text-primary)}
+.modal-card p{color:var(--text-secondary);font-size:15px;margin-bottom:25px}
+.modal-card input{width:100%;padding:16px;border-radius:16px;border:2px solid var(--border-color);margin:12px 0;font-size:15px;outline:none;transition:all 0.3s}
+.modal-card input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(124,58,237,0.15)}
+.modal-card button{width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));color:white;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.3s;margin-top:12px}
+.modal-card button:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(124,58,237,0.4)}
+.modal-card .secondary-btn{background:#e5e7eb;color:var(--text-primary);margin-top:8px}
+
+/* ============ EDIT FAB ============ */
+.fab{position:fixed;bottom:30px;right:30px;width:65px;height:65px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-size:24px;box-shadow:0 10px 35px rgba(124,58,237,0.5);cursor:pointer;border:none;z-index:1000;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);animation:float 3s ease-in-out infinite}
+.fab:hover{transform:scale(1.15) rotate(15deg);box-shadow:0 20px 50px rgba(124,58,237,0.6)}
+
+/* ============ IMAGE PREVIEW ============ */
+.image-preview-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:10000;animation:fadeIn 0.3s ease}
+.image-preview-modal img{max-width:90%;max-height:85%;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,0.5);animation:bounceIn 0.4s ease}
+.close-preview{position:absolute;top:25px;right:25px;background:rgba(255,255,255,0.15);border:none;color:white;width:55px;height:55px;border-radius:50%;cursor:pointer;font-size:22px;transition:all 0.3s;display:flex;align-items:center;justify-content:center}
+.close-preview:hover{background:rgba(255,255,255,0.25);transform:rotate(90deg) scale(1.1)}
+
+/* ============ TEMPLATE 1: DEFAULT (Facebook Style) ============ */
+.template-default .cover-section{position:relative;width:100%;height:320px;border-radius:0 0 24px 24px;overflow:hidden;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));animation:fadeIn 1s ease-out}
+.template-default .cover-photo{width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease}
+.template-default .cover-section:hover .cover-photo{transform:scale(1.02)}
+.template-default .cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.5));transition:opacity 0.3s}
+.template-default .change-cover-btn{position:absolute;bottom:20px;right:20px;background:rgba(255,255,255,0.95);border:none;padding:12px 22px;border-radius:14px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.2);transition:all 0.3s;opacity:0;transform:translateY(10px)}
+.template-default .cover-section:hover .change-cover-btn{opacity:1;transform:translateY(0)}
+.template-default .profile-header{display:flex;align-items:flex-end;padding:0 40px;margin-top:-70px;position:relative;z-index:10;animation:slideInLeft 0.8s ease-out 0.3s both}
+.template-default .pfp-container{position:relative;flex-shrink:0;margin-right:30px}
+.template-default .pfp{width:150px;height:150px;border-radius:50%;object-fit:cover;border:5px solid white;box-shadow:0 15px 50px rgba(0,0,0,0.25);cursor:pointer;background:white;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);animation:bounceIn 0.8s ease-out 0.5s both}
+.template-default .pfp:hover{transform:scale(1.05) rotate(2deg);box-shadow:0 20px 60px rgba(124,58,237,0.4)}
+.template-default .change-pfp-btn{position:absolute;bottom:8px;right:8px;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));border:3px solid white;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 6px 20px rgba(124,58,237,0.4);transition:all 0.3s}
+.template-default .change-pfp-btn:hover{transform:scale(1.15) rotate(-10deg)}
+.template-default .profile-info-header{flex:1;padding-bottom:10px;animation:slideInRight 0.8s ease-out 0.5s both}
+.template-default .profile-name{font-size:32px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.template-default .profile-bio{font-size:16px;color:var(--text-secondary);line-height:1.5;max-width:400px}
+.template-default .main-content{display:grid;grid-template-columns:360px 1fr;gap:25px;margin-top:35px}
+.template-default .card{background:var(--card-bg);backdrop-filter:blur(20px);border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:25px;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)}
+.template-default .card:hover{transform:translateY(-5px);box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.template-default .card-header{padding:22px 25px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between}
+.template-default .card-title{font-size:18px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:12px}
+.template-default .card-title i{color:var(--accent);font-size:20px}
+.template-default .card-body{padding:22px 25px}
+.template-default .info-item{display:flex;align-items:flex-start;gap:15px;padding:16px 0;border-bottom:1px solid var(--border-color);transition:all 0.3s}
+.template-default .info-item:hover{padding-left:8px}
+.template-default .info-item:last-child{border-bottom:none}
+.template-default .info-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-size:18px;flex-shrink:0;transition:all 0.3s}
+.template-default .info-item:hover .info-icon{transform:scale(1.1) rotate(5deg);box-shadow:0 8px 25px rgba(124,58,237,0.4)}
+.template-default .info-label{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;transition:color 0.3s}
+.template-default .info-item:hover .info-label{color:var(--accent)}
+.template-default .info-value{font-size:15px;font-weight:500;color:var(--text-primary);line-height:1.5}
+.template-default .info-value[contenteditable="true"]{outline:2px dashed var(--accent);padding:8px 12px;border-radius:10px;background:rgba(124,58,237,0.08);animation:pulse 2s infinite}
+.template-default .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.template-default .gallery-item{aspect-ratio:1;border-radius:16px;overflow:hidden;cursor:pointer;position:relative;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)}
+.template-default .gallery-item:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 15px 40px rgba(0,0,0,0.2)}
+.template-default .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease}
+.template-default .gallery-item:hover img{transform:scale(1.15)}
+.template-default .add-photo-btn{aspect-ratio:1;border-radius:16px;border:2px dashed var(--border-color);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);gap:8px;transition:all 0.4s;font-weight:500}
+.template-default .add-photo-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,0.08);transform:translateY(-5px) scale(1.02)}
+.template-default .socials-grid{display:flex;flex-wrap:wrap;gap:12px}
+.template-default .social-link{display:flex;align-items:center;gap:10px;padding:12px 18px;background:white;border-radius:14px;text-decoration:none;color:var(--text-primary);font-weight:500;box-shadow:0 3px 12px rgba(0,0,0,0.06);transition:all 0.4s}
+.template-default .social-link:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 30px rgba(0,0,0,0.15)}
+.template-default .add-link-btn{width:100%;padding:14px;border:2px dashed var(--border-color);border-radius:14px;background:transparent;color:var(--text-secondary);font-weight:600;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
+.template-default .add-link-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,0.05)}
+
+/* ============ TEMPLATE 2: PASTEL CARDS ============ */
+.template-pastel{background:#f8f9fc}
+.template-pastel .container{max-width:900px}
+.template-pastel .profile-header{display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;animation:fadeInUp 0.8s ease}
+.template-pastel .pfp-container{position:relative;margin-bottom:25px}
+.template-pastel .pfp{width:180px;height:180px;border-radius:24px;object-fit:cover;border:6px solid white;box-shadow:0 20px 60px rgba(0,0,0,0.15);cursor:pointer;transition:all 0.4s;animation:bounceIn 0.6s ease}
+.template-pastel .pfp:hover{transform:rotate(-3deg) scale(1.03)}
+.template-pastel .change-pfp-btn{position:absolute;bottom:-10px;right:-10px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff9a9e,#fecfef);border:4px solid white;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 8px 25px rgba(255,154,158,0.5);transition:all 0.3s}
+.template-pastel .change-pfp-btn:hover{transform:scale(1.15)}
+.template-pastel .profile-name{font-size:36px;font-weight:800;color:#4a5568;margin-bottom:10px}
+.template-pastel .profile-bio{font-size:16px;color:#718096;max-width:500px}
+.template-pastel .main-content{display:grid;grid-template-columns:1fr 1fr;gap:25px;padding:20px}
+.template-pastel .pastel-card{background:white;border-radius:24px;padding:30px;box-shadow:8px 8px 0 rgba(0,0,0,0.1);position:relative;transition:all 0.4s;animation:fadeInUp 0.6s ease}
+.template-pastel .pastel-card:hover{transform:translateY(-5px);box-shadow:12px 12px 0 rgba(0,0,0,0.15)}
+.template-pastel .card-tab{position:absolute;top:-15px;left:25px;padding:10px 25px;border-radius:12px;font-weight:700;font-size:14px;color:white;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.template-pastel .tab-yellow{background:linear-gradient(135deg,#f6d365,#fda085)}
+.template-pastel .tab-green{background:linear-gradient(135deg,#84fab0,#8fd3f4)}
+.template-pastel .tab-pink{background:linear-gradient(135deg,#ff9a9e,#fecfef)}
+.template-pastel .tab-purple{background:linear-gradient(135deg,#a18cd1,#fbc2eb)}
+.template-pastel .tab-orange{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+.template-pastel .card-yellow{background:#fff9e6}
+.template-pastel .card-green{background:#e6fff0}
+.template-pastel .card-pink{background:#ffe6f0}
+.template-pastel .card-purple{background:#f0e6ff}
+.template-pastel .card-orange{background:#fff0e6}
+.template-pastel .info-row{display:flex;align-items:center;padding:12px 0;border-bottom:2px dashed rgba(0,0,0,0.1)}
+.template-pastel .info-row:last-child{border-bottom:none}
+.template-pastel .info-label{font-weight:700;color:#4a5568;min-width:120px}
+.template-pastel .info-value{color:#718096;flex:1}
+.template-pastel .info-value[contenteditable="true"]{outline:2px dashed #ff9a9e;padding:5px 10px;border-radius:8px;background:rgba(255,154,158,0.1)}
+.template-pastel .about-text{color:#4a5568;line-height:1.8;font-size:15px}
+.template-pastel .about-text[contenteditable="true"]{outline:2px dashed #84fab0;padding:10px;border-radius:12px;background:rgba(132,250,176,0.1)}
+.template-pastel .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px}
+.template-pastel .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;cursor:pointer;transition:all 0.4s;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+.template-pastel .gallery-item:hover{transform:scale(1.05) rotate(2deg)}
+.template-pastel .gallery-item img{width:100%;height:100%;object-fit:cover}
+.template-pastel .add-photo-btn{border:3px dashed rgba(0,0,0,0.2);border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;color:#718096}
+.template-pastel .add-photo-btn:hover{border-color:#ff9a9e;color:#ff9a9e;background:rgba(255,154,158,0.1)}
+.template-pastel .socials-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.template-pastel .social-link{padding:10px 18px;border-radius:20px;text-decoration:none;color:white;font-weight:600;font-size:14px;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.15)}
+.template-pastel .social-link:hover{transform:translateY(-3px) scale(1.05)}
+.template-pastel .add-link-btn{width:100%;padding:12px;border:2px dashed rgba(0,0,0,0.2);border-radius:20px;background:transparent;color:#718096;font-weight:600;cursor:pointer;transition:all 0.3s;margin-top:10px}
+.template-pastel .add-link-btn:hover{border-color:#a18cd1;color:#a18cd1}
+.template-pastel .full-width{grid-column:1/-1}
+.template-pastel .likes-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.template-pastel .like-tag{background:linear-gradient(135deg,#ff9a9e,#fecfef);color:white;padding:8px 16px;border-radius:20px;font-size:14px;font-weight:600}
+
+/* ============ TEMPLATE 3: SCRAPBOOK ============ */
+.template-scrapbook{background:#f5f0e8;font-family:'Kalam',cursive}
+.template-scrapbook .container{max-width:850px}
+.template-scrapbook .scrapbook-page{background:#fffef8;min-height:100vh;padding:40px 30px;box-shadow:0 0 50px rgba(0,0,0,0.1);position:relative}
+.template-scrapbook .scrapbook-page::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none}
+.template-scrapbook .profile-header{display:flex;flex-direction:column;align-items:center;padding:30px 0;animation:fadeInUp 0.8s ease}
+.template-scrapbook .polaroid-frame{background:white;padding:15px 15px 50px 15px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:rotate(-3deg);transition:all 0.4s;position:relative}
+.template-scrapbook .polaroid-frame:hover{transform:rotate(0deg) scale(1.02)}
+.template-scrapbook .polaroid-frame::after{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:80px;height:25px;background:linear-gradient(135deg,#d4a574,#c49a6c);opacity:0.6}
+.template-scrapbook .pfp{width:200px;height:240px;object-fit:cover;display:block}
+.template-scrapbook .change-pfp-btn{position:absolute;bottom:10px;right:10px;width:40px;height:40px;border-radius:50%;background:#d4a574;border:3px solid white;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s}
+.template-scrapbook .change-pfp-btn:hover{transform:scale(1.15);background:#c49a6c}
+.template-scrapbook .profile-info{text-align:center;margin-top:30px}
+.template-scrapbook .hello-text{font-size:20px;color:#8b7355;margin-bottom:5px;font-family:'Caveat',cursive}
+.template-scrapbook .profile-name{font-size:42px;font-weight:700;color:#5c4a3d;margin-bottom:15px;font-family:'Kalam',cursive}
+.template-scrapbook .profile-details{color:#8b7355;font-size:16px;line-height:2}
+.template-scrapbook .main-content{padding:20px 0}
+.template-scrapbook .scrap-section{margin-bottom:40px;position:relative}
+.template-scrapbook .section-title{font-size:28px;color:#5c4a3d;margin-bottom:20px;display:flex;align-items:center;gap:15px;font-family:'Kalam',cursive}
+.template-scrapbook .section-title::after{content:'';flex:1;height:2px;background:repeating-linear-gradient(90deg,#d4a574,#d4a574 5px,transparent 5px,transparent 10px)}
+.template-scrapbook .paper-note{background:white;padding:25px;box-shadow:3px 3px 10px rgba(0,0,0,0.1);position:relative;transform:rotate(1deg);transition:all 0.3s}
+.template-scrapbook .paper-note:hover{transform:rotate(0deg) scale(1.01)}
+.template-scrapbook .paper-note::before{content:'';position:absolute;top:-15px;left:30px;width:60px;height:30px;background:#ff6b6b;opacity:0.8;transform:rotate(-5deg)}
+.template-scrapbook .paper-note.yellow{background:#fffef0}
+.template-scrapbook .paper-note.blue{background:#f0f8ff}
+.template-scrapbook .paper-note.pink{background:#fff0f5}
+.template-scrapbook .paper-note.green{background:#f0fff0}
+.template-scrapbook .note-lines{background:repeating-linear-gradient(transparent,transparent 28px,#e0e0e0 28px,#e0e0e0 29px);line-height:29px;padding:5px 0;color:#5c4a3d;min-height:100px}
+.template-scrapbook .note-lines[contenteditable="true"]{outline:2px dashed #d4a574;padding:5px 10px}
+.template-scrapbook .hobby-item{display:flex;align-items:center;gap:12px;padding:10px 0;color:#5c4a3d;font-size:16px}
+.template-scrapbook .hobby-item::before{content:'✦';color:#d4a574}
+.template-scrapbook .quote-box{background:#fffef0;padding:30px;position:relative;transform:rotate(-2deg);box-shadow:0 5px 20px rgba(0,0,0,0.1);margin:20px 0}
+.template-scrapbook .quote-box::before{content:'"';position:absolute;top:10px;left:15px;font-size:60px;color:#d4a574;opacity:0.3;font-family:Georgia,serif}
+.template-scrapbook .quote-text{font-size:18px;color:#5c4a3d;font-style:italic;line-height:1.8;padding-left:30px;font-family:'Caveat',cursive}
+.template-scrapbook .quote-text[contenteditable="true"]{outline:2px dashed #d4a574;padding:5px 10px;border-radius:8px}
+.template-scrapbook .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.template-scrapbook .gallery-item{position:relative;transition:all 0.4s}
+.template-scrapbook .gallery-item:nth-child(odd){transform:rotate(-2deg)}
+.template-scrapbook .gallery-item:nth-child(even){transform:rotate(2deg)}
+.template-scrapbook .gallery-item:hover{transform:rotate(0deg) scale(1.05);z-index:10}
+.template-scrapbook .gallery-item img{width:100%;border:8px solid white;box-shadow:0 5px 20px rgba(0,0,0,0.2);display:block}
+.template-scrapbook .add-photo-btn{border:3px dashed #d4a574;padding:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#8b7355;transition:all 0.3s;background:rgba(212,165,116,0.1)}
+.template-scrapbook .add-photo-btn:hover{background:rgba(212,165,116,0.2);transform:scale(1.05)}
+.template-scrapbook .socials-grid{display:flex;flex-wrap:wrap;gap:15px;margin-top:15px}
+.template-scrapbook .social-link{background:white;padding:12px 20px;border-radius:8px;text-decoration:none;color:#5c4a3d;font-weight:600;box-shadow:3px 3px 0 #d4a574;transition:all 0.3s;border:2px solid #d4a574}
+.template-scrapbook .social-link:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 #d4a574}
+.template-scrapbook .add-link-btn{width:100%;padding:14px;border:3px dashed #d4a574;background:transparent;color:#8b7355;font-weight:600;cursor:pointer;transition:all 0.3s;margin-top:15px;font-family:'Kalam',cursive;font-size:16px}
+.template-scrapbook .add-link-btn:hover{background:rgba(212,165,116,0.1)}
+.template-scrapbook .color-dots{display:flex;gap:15px;margin-top:15px}
+.template-scrapbook .color-dot{width:35px;height:35px;border-radius:50%;border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.2);cursor:pointer;transition:all 0.3s}
+.template-scrapbook .color-dot:hover{transform:scale(1.2)}
+.template-scrapbook .pet-photo{width:150px;transform:rotate(5deg);box-shadow:0 10px 30px rgba(0,0,0,0.2);border:8px solid white;position:relative}
+.template-scrapbook .pet-photo::after{content:'My Pet';position:absolute;bottom:-30px;right:-20px;font-family:'Caveat',cursive;font-size:24px;color:#5c4a3d;transform:rotate(-10deg)}
+
+/* Responsive */
+@media(max-width:768px){
+  .template-default .main-content{grid-template-columns:1fr}
+  .template-default .profile-header{flex-direction:column;align-items:center;text-align:center;padding:0 20px;margin-top:-50px}
+  .template-default .pfp-container{margin-right:0;margin-bottom:15px}
+  .template-default .pfp{width:130px;height:130px}
+  .template-default .cover-section{height:200px}
+  .template-default .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .template-pastel .main-content{grid-template-columns:1fr}
+  .template-scrapbook .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .template-selector{top:10px;right:10px;padding:10px}
+  .template-selector span{display:none}
+}
+</style>
+</head>
+<body class="template-default">
+
+<!-- Loader -->
+<div id="loader" class="loader">
+  <div class="loader-spinner"></div>
+  <p style="color:var(--text-secondary);font-weight:600;font-size:16px;">Loading profile...</p>
+</div>
+
+<!-- Edit Mode Indicator -->
+<div id="editIndicator" class="edit-indicator">
+  <i class="fa-solid fa-pen-to-square"></i>
+  Edit Mode Active
+</div>
+
+<!-- Template Selector -->
+<div class="template-selector hidden" id="templateSelector">
+  <span>Template:</span>
+  <select id="templateSelect" onchange="changeTemplate(this.value)">
+    <option value="default">Default</option>
+    <option value="pastel">Pastel Cards</option>
+    <option value="scrapbook">Scrapbook</option>
+  </select>
+</div>
+
+<!-- Claim Screen -->
+<div id="claimScreen" class="claim hidden">
+  <div class="claim-card">
+    <i class="fa-solid fa-user-lock" style="font-size:60px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;display:block;"></i>
+    <h2>Unclaimed Profile</h2>
+    <p>This profile is available! Claim it now to customize your personal page and secure it with a password.</p>
+    <button onclick="claimProfile()">Claim Profile Now</button>
+  </div>
+</div>
+
+<!-- Main Profile Container - DEFAULT TEMPLATE -->
+<div class="container hidden template-default" id="profileContainer">
+  <!-- Cover Photo Section -->
+  <div class="cover-section" id="coverSection">
+    <img id="coverPhoto" class="cover-photo" src="" alt="Cover" style="display:none;">
+    <div class="cover-overlay"></div>
+    <button class="change-cover-btn hidden" id="changeCoverBtn" onclick="changeCoverPhoto()">
+      <i class="fa-solid fa-camera"></i> Change Cover
+    </button>
+  </div>
+  
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="pfp-container">
+      <img id="pfp" class="pfp" src="https://ui-avatars.com/api/?name=New+Profile&background=7c3aed&color=fff&size=170" alt="Profile">
+      <button class="change-pfp-btn hidden" id="changePfpBtn" onclick="changeProfilePicture()">
+        <i class="fa-solid fa-camera"></i>
+      </button>
+    </div>
+    <div class="profile-info-header">
+      <h1 class="profile-name" id="name">New Profile</h1>
+      <p class="profile-bio" id="headerBio">Tap edit to update your bio</p>
+    </div>
+  </div>
+  
+  <!-- Main Content Grid -->
+  <div class="main-content">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- About Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-user"></i> About</div>
+        </div>
+        <div class="card-body">
+          <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-quote-left"></i></div>
+            <div class="info-content">
+              <div class="info-label">Bio</div>
+              <div class="info-value" id="about">Tap edit to update your bio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Personal Info Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-address-card"></i> Personal Info</div>
+        </div>
+        <div class="card-body">
+          <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-cake-candles"></i></div>
+            <div class="info-content">
+              <div class="info-label">Birthday</div>
+              <div class="info-value" id="bday">--</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-heart"></i></div>
+            <div class="info-content">
+              <div class="info-label">Hobbies</div>
+              <div class="info-value" id="hobbies">--</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-star"></i></div>
+            <div class="info-content">
+              <div class="info-label">Favorite</div>
+              <div class="info-value" id="fav">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Social Links Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-share-nodes"></i> Social Links</div>
+        </div>
+        <div class="card-body">
+          <div class="socials-grid" id="socials"></div>
+          <button class="add-link-btn hidden" id="addLinkBtn" onclick="openAddLinkModal()">
+            <i class="fa-solid fa-plus"></i> Add Link
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Column - Gallery -->
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-images"></i> Gallery</div>
+        </div>
+        <div class="card-body">
+          <div class="gallery-grid" id="gallery"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASTEL TEMPLATE -->
+<div class="container hidden template-pastel" id="pastelContainer">
+  <div class="profile-header">
+    <div class="pfp-container">
+      <img class="pfp" id="pastelPfp" src="https://ui-avatars.com/api/?name=New+Profile&background=ff9a9e&color=fff&size=180" alt="Profile">
+      <button class="change-pfp-btn hidden pastel-change-pfp" onclick="changeProfilePicture()">
+        <i class="fa-solid fa-camera"></i>
+      </button>
+    </div>
+    <h1 class="profile-name" id="pastelName">New Profile</h1>
+    <p class="profile-bio" id="pastelBio">Welcome to my profile!</p>
+  </div>
+  
+  <div class="main-content">
+    <!-- Profile Card -->
+    <div class="pastel-card card-yellow">
+      <div class="card-tab tab-yellow">My Bio</div>
+      <div class="info-row"><span class="info-label">Name:</span><span class="info-value" id="pastelNameField">--</span></div>
+      <div class="info-row"><span class="info-label">Birthday:</span><span class="info-value" id="pastelBday">--</span></div>
+      <div class="info-row"><span class="info-label">Zodiac:</span><span class="info-value" id="pastelZodiac">--</span></div>
+      <div class="info-row"><span class="info-label">Height:</span><span class="info-value" id="pastelHeight">--</span></div>
+      <div class="info-row"><span class="info-label">Weight:</span><span class="info-value" id="pastelWeight">--</span></div>
+    </div>
+    
+    <!-- Photo Card -->
+    <div class="pastel-card card-pink">
+      <div class="card-tab tab-pink">Photo</div>
+      <div class="gallery-grid" id="pastelGallery"></div>
+    </div>
+    
+    <!-- About Card -->
+    <div class="pastel-card card-green full-width">
+      <div class="card-tab tab-green">About Me</div>
+      <div class="about-text" id="pastelAbout">Tap edit to add your story...</div>
+    </div>
+    
+    <!-- Likes Card -->
+    <div class="pastel-card card-purple">
+      <div class="card-tab tab-purple">Likes</div>
+      <div class="likes-list" id="pastelLikes"></div>
+    </div>
+    
+    <!-- Goals Card -->
+    <div class="pastel-card card-orange">
+      <div class="card-tab tab-orange">My Goal</div>
+      <div class="about-text" id="pastelGoal">What's your goal?</div>
+    </div>
+    
+    <!-- Socials -->
+    <div class="pastel-card card-yellow full-width">
+      <div class="card-tab tab-yellow">Social Links</div>
+      <div class="socials-grid" id="pastelSocials"></div>
+      <button class="add-link-btn hidden" onclick="openAddLinkModal()">
+        <i class="fa-solid fa-plus"></i> Add Link
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRAPBOOK TEMPLATE -->
+<div class="container hidden template-scrapbook" id="scrapbookContainer">
+  <div class="scrapbook-page">
+    <div class="profile-header">
+      <div class="polaroid-frame">
+        <img class="pfp" id="scrapbookPfp" src="https://ui-avatars.com/api/?name=New+Profile&background=d4a574&color=fff&size=200" alt="Profile">
+        <button class="change-pfp-btn hidden" onclick="changeProfilePicture()">
+          <i class="fa-solid fa-camera"></i>
+        </button>
+      </div>
+      <div class="profile-info">
+        <p class="hello-text">Hello, I am</p>
+        <h1 class="profile-name" id="scrapbookName">New Profile</h1>
+        <div class="profile-details">
+          <div id="scrapbookDetails">Add your details...</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <!-- About Section -->
+      <div class="scrap-section">
+        <h2 class="section-title">About Me</h2>
+        <div class="paper-note yellow">
+          <div class="note-lines" id="scrapbookAbout">Write your story here...</div>
+        </div>
+      </div>
+      
+      <!-- Interests Section -->
+      <div class="scrap-section">
+        <h2 class="section-title">Interests & Hobbies</h2>
+        <div class="paper-note blue">
+          <div id="scrapbookHobbies">
+            <div class="hobby-item">Add your hobbies...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quote Section -->
+      <div class="scrap-section">
+        <div class="quote-box">
+          <div class="quote-text" id="scrapbookQuote">Your favorite quote...</div>
+        </div>
+      </div>
+      
+      <!-- Gallery Section -->
+      <div class="scrap-section">
+        <h2 class="section-title">My Photos</h2>
+        <div class="gallery-grid" id="scrapbookGallery"></div>
+      </div>
+      
+      <!-- Socials Section -->
+      <div class="scrap-section">
+        <h2 class="section-title">Connect With Me</h2>
+        <div class="socials-grid" id="scrapbookSocials"></div>
+        <button class="add-link-btn hidden" onclick="openAddLinkModal()">
+          <i class="fa-solid fa-plus"></i> Add Social Link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit FAB -->
+<button class="fab" id="editBtn" title="Tap to edit, long-press for background"><i class="fa-solid fa-pen"></i></button>
+
+<!-- Auth Modal -->
+<div class="modal hidden" id="authModal">
+  <div class="modal-card">
+    <i class="fa-solid fa-lock" style="font-size:45px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:15px;display:block;"></i>
+    <h3>Enter Password</h3>
+    <p>Enter your profile password to enable edit mode</p>
+    <input type="password" id="passwordInput" placeholder="Your password">
+    <button onclick="unlock()">Unlock Profile</button>
+    <p id="error" style="color:#ef4444;font-size:13px;margin-top:12px;"></p>
+  </div>
+</div>
+
+<!-- Image Upload Modal -->
+<div class="modal hidden" id="uploadModal">
+  <div class="modal-card">
+    <i class="fa-solid fa-cloud-arrow-up" style="font-size:45px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:15px;display:block;"></i>
+    <h3 id="uploadTitle">Upload Image</h3>
+    <p>Enter image URL or upload from your device</p>
+    <input type="text" id="imageUrlInput" placeholder="https://example.com/image.jpg">
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+    <button onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Choose from Device</button>
+    <button onclick="confirmImageUpload()">Confirm Upload</button>
+    <button class="secondary-btn" onclick="closeUploadModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Link Modal -->
+<div class="modal hidden" id="linkModal">
+  <div class="modal-card">
+    <i class="fa-solid fa-link" style="font-size:45px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:15px;display:block;"></i>
+    <h3>Add Social Link</h3>
+    <p>Enter your social media or website URL</p>
+    <input type="text" id="linkUrlInput" placeholder="https://instagram.com/username">
+    <button onclick="confirmAddLink()">Add Link</button>
+    <button class="secondary-btn" onclick="closeLinkModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Background Customization Modal -->
+<div class="modal hidden" id="bgModal">
+  <div class="modal-card">
+    <i class="fa-solid fa-palette" style="font-size:45px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:15px;display:block;"></i>
+    <h3>Customize Background</h3>
+    <p>Choose a background style for your profile</p>
+    <div class="bg-options" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:25px 0;">
+      <div class="bg-option active" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#eef2ff,#fdfbff);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('default')" title="Default"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#667eea,#764ba2);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('purple')" title="Purple Dream"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#f093fb,#f5576c);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('pink')" title="Pink Sunset"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#4facfe,#00f2fe);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('blue')" title="Ocean Blue"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#43e97b,#38f9d7);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('green')" title="Mint Fresh"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#fa709a,#fee140);cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('warm')" title="Warm Sunset"></div>
+      <div class="bg-option" style="width:50px;height:50px;border-radius:14px;background:#1a1a2e;cursor:pointer;border:3px solid transparent;transition:all 0.3s" onclick="setBackground('dark')" title="Dark Mode"></div>
+    </div>
+    <button onclick="closeBgModal()">Apply Changes</button>
+  </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="modal hidden" id="previewModal">
+  <div class="image-preview-modal" onclick="closeImagePreview()">
+    <button class="close-preview" onclick="closeImagePreview()"><i class="fa-solid fa-xmark"></i></button>
+    <img id="previewImage" src="" alt="Preview">
+  </div>
+</div>
+
+<input type="file" id="pfpFileInput" accept="image/*" hidden>
+<input type="file" id="coverFileInput" accept="image/*" hidden>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {getDatabase,ref,set,update,onValue} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyDO7jeyEQr6qdYrorxzT5lNh0QiLzMwYmw",
+  authDomain:"qr-code-project-21d42.firebaseapp.com",
+  projectId:"qr-code-project-21d42",
+  databaseURL:"https://qr-code-project-21d42-default-rtdb.firebaseio.com"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+
+const id=new URLSearchParams(window.location.search).get('id')||"0000";
+
+let profileData=null;
+let isOwner=false;
+let currentUploadType='';
+let currentTemplate='default';
+
+const sha256=async(str)=>{
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+};
+
+const bgPresets={
+  default:'linear-gradient(135deg,#eef2ff,#fdfbff)',
+  purple:'linear-gradient(135deg,#667eea,#764ba2)',
+  pink:'linear-gradient(135deg,#f093fb,#f5576c)',
+  blue:'linear-gradient(135deg,#4facfe,#00f2fe)',
+  green:'linear-gradient(135deg,#43e97b,#38f9d7)',
+  warm:'linear-gradient(135deg,#fa709a,#fee140)',
+  dark:'#1a1a2e'
+};
+
+// Listen for profile data
+onValue(ref(db,'profiles/'+id),(snap)=>{
+  profileData=snap.val();
+  document.getElementById('loader').classList.add('hidden');
+
+  if(!profileData){
+    document.getElementById('claimScreen').classList.remove('hidden');
+    return;
+  }
+
+  document.getElementById('claimScreen').classList.add('hidden');
+  
+  // Set template
+  currentTemplate=profileData.template||'default';
+  document.getElementById('templateSelect').value=currentTemplate;
+  applyTemplate(currentTemplate);
+  
+  // Apply background
+  if(profileData.background){
+    applyBackground(profileData.background);
+  }
+  
+  render();
+});
+
+function applyTemplate(template){
+  document.body.className='template-'+template;
+  document.getElementById('profileContainer').classList.add('hidden');
+  document.getElementById('pastelContainer').classList.add('hidden');
+  document.getElementById('scrapbookContainer').classList.add('hidden');
+  
+  if(template==='default'){
+    document.getElementById('profileContainer').classList.remove('hidden');
+  }else if(template==='pastel'){
+    document.getElementById('pastelContainer').classList.remove('hidden');
+  }else if(template==='scrapbook'){
+    document.getElementById('scrapbookContainer').classList.remove('hidden');
+  }
+}
+
+window.changeTemplate=async(template)=>{
+  currentTemplate=template;
+  applyTemplate(template);
+  if(isOwner&&profileData){
+    await update(ref(db,'profiles/'+id),{template:template});
+  }
+  render();
+};
+
+function applyBackground(bgKey){
+  const bg=bgPresets[bgKey]||bgPresets.default;
+  document.documentElement.style.setProperty('--page-bg',bg);
+  if(bgKey==='dark'){
+    document.documentElement.style.setProperty('--card-bg','rgba(30,30,45,0.9)');
+    document.documentElement.style.setProperty('--text-primary','#f3f4f6');
+    document.documentElement.style.setProperty('--text-secondary','#9ca3af');
+  }else{
+    document.documentElement.style.setProperty('--card-bg','rgba(255,255,255,0.85)');
+    document.documentElement.style.setProperty('--text-primary','#1f2937');
+    document.documentElement.style.setProperty('--text-secondary','#6b7280');
+  }
+}
+
+window.claimProfile=async()=>{
+  const pass=prompt("Set a password to secure your profile:");
+  if(!pass) return alert("Password is required to claim this profile.");
+  if(pass.length<4) return alert("Password must be at least 4 characters.");
+
+  const hash=await sha256(pass);
+
+  await set(ref(db,'profiles/'+id),{
+    password:hash,
+    name:"New Profile",
+    about:"Welcome to my profile! Tap edit to customize.",
+    bday:"Not set",
+    hobbies:"Not set",
+    fav:"Not set",
+    gallery:[],
+    socials:[],
+    pfp:"https://ui-avatars.com/api/?name=New+Profile&background=7c3aed&color=fff&size=170",
+    cover:"",
+    background:'default',
+    template:'default',
+    createdAt:Date.now()
+  });
+};
+
+window.unlock=async()=>{
+  const input=document.getElementById('passwordInput').value;
+  if(!input) return;
+  
+  const hash=await sha256(input);
+
+  if(hash===profileData.password){
+    isOwner=true;
+    document.getElementById('authModal').classList.add('hidden');
+    document.getElementById('editIndicator').classList.add('active');
+    document.getElementById('templateSelector').classList.remove('hidden');
+    enableEdit();
+  }else{
+    document.getElementById('error').innerText="Incorrect password. Please try again.";
+    setTimeout(()=>{document.getElementById('error').innerText="";},3000);
+  }
+};
+
+function enableEdit(){
+  // Show all edit buttons
+  document.querySelectorAll('.change-pfp-btn, .change-cover-btn, .add-link-btn').forEach(el=>{
+    el.classList.remove('hidden');
+  });
+  
+  // Enable content editing based on template
+  if(currentTemplate==='default'){
+    document.querySelectorAll('.info-value,#name,#headerBio').forEach(el=>{
+      el.contentEditable=true;
+      el.addEventListener('blur',saveProfile);
+    });
+  }else if(currentTemplate==='pastel'){
+    document.querySelectorAll('#pastelName,#pastelBio,#pastelNameField,#pastelBday,#pastelZodiac,#pastelHeight,#pastelWeight,#pastelAbout,#pastelGoal').forEach(el=>{
+      el.contentEditable=true;
+      el.addEventListener('blur',saveProfile);
+    });
+  }else if(currentTemplate==='scrapbook'){
+    document.querySelectorAll('#scrapbookName,#scrapbookAbout,#scrapbookQuote').forEach(el=>{
+      el.contentEditable=true;
+      el.addEventListener('blur',saveProfile);
+    });
+  }
+  
+  // Add add-photo buttons
+  addPhotoButtons();
+}
+
+function addPhotoButtons(){
+  const galleryIds=['gallery','pastelGallery','scrapbookGallery'];
+  galleryIds.forEach(id=>{
+    const gallery=document.getElementById(id);
+    if(gallery&&!gallery.querySelector('.add-photo-btn')){
+      const addBtn=document.createElement('div');
+      addBtn.className='add-photo-btn';
+      addBtn.innerHTML='<i class="fa-solid fa-plus"></i><span>Add</span>';
+      addBtn.onclick=()=>openUploadModal('gallery');
+      gallery.appendChild(addBtn);
+    }
+  });
+}
+
+function saveProfile(){
+  if(!isOwner) return;
+  
+  let updated={};
+  
+  if(currentTemplate==='default'){
+    updated={
+      name:document.getElementById('name').innerText,
+      about:document.getElementById('about').innerText,
+      bday:document.getElementById('bday').innerText,
+      hobbies:document.getElementById('hobbies').innerText,
+      fav:document.getElementById('fav').innerText
+    };
+  }else if(currentTemplate==='pastel'){
+    updated={
+      name:document.getElementById('pastelName').innerText,
+      about:document.getElementById('pastelAbout').innerText,
+      bday:document.getElementById('pastelBday').innerText,
+      hobbies:document.getElementById('pastelGoal').innerText,
+      fav:document.getElementById('pastelZodiac').innerText
+    };
+  }else if(currentTemplate==='scrapbook'){
+    updated={
+      name:document.getElementById('scrapbookName').innerText,
+      about:document.getElementById('scrapbookAbout').innerText,
+      bday:document.getElementById('scrapbookQuote').innerText,
+      hobbies:document.getElementById('scrapbookHobbies').innerText,
+      fav:"--"
+    };
+  }
+  
+  update(ref(db,'profiles/'+id),updated);
+}
+
+function render(){
+  if(!profileData) return;
+  
+  // Default template render
+  document.getElementById('name').innerText=profileData.name||'New Profile';
+  document.getElementById('headerBio').innerText=profileData.about||'Tap edit to update your bio';
+  document.getElementById('about').innerText=profileData.about||'Tap edit to update your bio';
+  document.getElementById('bday').innerText=profileData.bday||'--';
+  document.getElementById('hobbies').innerText=profileData.hobbies||'--';
+  document.getElementById('fav').innerText=profileData.fav||'--';
+  document.getElementById('pfp').src=profileData.pfp||'https://ui-avatars.com/api/?name='+encodeURIComponent(profileData.name)+'&background=7c3aed&color=fff&size=170';
+  
+  if(profileData.cover){
+    const coverImg=document.getElementById('coverPhoto');
+    coverImg.src=profileData.cover;
+    coverImg.style.display='block';
+  }
+  
+  // Pastel template render
+  document.getElementById('pastelName').innerText=profileData.name||'New Profile';
+  document.getElementById('pastelBio').innerText=profileData.about||'Welcome to my profile!';
+  document.getElementById('pastelNameField').innerText=profileData.name||'--';
+  document.getElementById('pastelBday').innerText=profileData.bday||'--';
+  document.getElementById('pastelZodiac').innerText=profileData.fav||'--';
+  document.getElementById('pastelHeight').innerText='--';
+  document.getElementById('pastelWeight').innerText='--';
+  document.getElementById('pastelAbout').innerText=profileData.about||'Tap edit to add your story...';
+  document.getElementById('pastelGoal').innerText=profileData.hobbies||"What's your goal?";
+  document.getElementById('pastelPfp').src=profileData.pfp||'https://ui-avatars.com/api/?name='+encodeURIComponent(profileData.name)+'&background=ff9a9e&color=fff&size=180';
+  
+  // Scrapbook template render
+  document.getElementById('scrapbookName').innerText=profileData.name||'New Profile';
+  document.getElementById('scrapbookDetails').innerHTML=`
+    <div>${profileData.bday||'Add your birthday'}</div>
+    <div>${profileData.fav||'Add your zodiac'}</div>
+  `;
+  document.getElementById('scrapbookAbout').innerText=profileData.about||'Write your story here...';
+  document.getElementById('scrapbookQuote').innerText=profileData.hobbies||'Your favorite quote...';
+  document.getElementById('scrapbookPfp').src=profileData.pfp||'https://ui-avatars.com/api/?name='+encodeURIComponent(profileData.name)+'&background=d4a574&color=fff&size=200';
+  
+  // Render galleries
+  renderGallery('gallery',profileData.gallery||[]);
+  renderGallery('pastelGallery',profileData.gallery||[]);
+  renderGallery('scrapbookGallery',profileData.gallery||[]);
+  
+  // Render socials
+  renderSocials('socials',profileData.socials||[]);
+  renderSocials('pastelSocials',profileData.socials||[]);
+  renderSocials('scrapbookSocials',profileData.socials||[]);
+  
+  // Re-add photo buttons if in edit mode
+  if(isOwner){
+    addPhotoButtons();
+  }
+}
+
+function renderGallery(galleryId,images){
+  const g=document.getElementById(galleryId);
+  if(!g) return;
+  
+  // Keep only the add button if it exists
+  const addBtn=g.querySelector('.add-photo-btn');
+  g.innerHTML='';
+  
+  images.forEach((img,index)=>{
+    const el=document.createElement('div');
+    el.className='gallery-item';
+    el.innerHTML=`<img src="${img}" onclick="previewImage('${img}')" loading="lazy">`;
+    if(isOwner){
+      const delBtn=document.createElement('div');
+      delBtn.style.cssText='position:absolute;top:8px;right:8px;background:rgba(239,68,68,0.9);color:white;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:5;transition:all 0.3s;';
+      delBtn.innerHTML='<i class="fa-solid fa-trash"></i>';
+      delBtn.onclick=(e)=>{e.stopPropagation();removeGalleryImage(index);};
+      el.appendChild(delBtn);
+    }
+    g.appendChild(el);
+  });
+  
+  // Re-add the add button
+  if(addBtn){
+    g.appendChild(addBtn);
+  }
+}
+
+function renderSocials(socialsId,links){
+  const s=document.getElementById(socialsId);
+  if(!s) return;
+  s.innerHTML='';
+  
+  links.forEach(link=>{
+    const a=document.createElement('a');
+    a.href=link.url||link;
+    a.target='_blank';
+    a.className='social-link';
+    
+    const platform=getPlatformFromUrl(link.url||link);
+    a.classList.add(platform);
+    
+    if(currentTemplate==='pastel'){
+      a.style.background=getSocialColor(platform);
+      a.innerHTML=`<i class="fa-brands fa-${platform}"></i>`;
+    }else if(currentTemplate==='scrapbook'){
+      a.innerHTML=`<i class="fa-brands fa-${platform}"></i> ${capitalizeFirst(platform)}`;
+    }else{
+      a.innerHTML=`<i class="fa-brands fa-${platform}"></i><span>${capitalizeFirst(platform)}</span>`;
+    }
+    s.appendChild(a);
+  });
+}
+
+function getSocialColor(platform){
+  const colors={
+    instagram:'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+    twitter:'linear-gradient(135deg,#1da1f2,#0d8bd9)',
+    facebook:'linear-gradient(135deg,#1877f2,#0d65d9)',
+    linkedin:'linear-gradient(135deg,#0a66c2,#084e96)',
+    youtube:'linear-gradient(135deg,#ff0000,#cc0000)',
+    github:'linear-gradient(135deg,#333,#1a1a1a)',
+    website:'linear-gradient(135deg,#7c3aed,#ec4899)'
+  };
+  return colors[platform]||colors.website;
+}
+
+function getPlatformFromUrl(url){
+  if(url.includes('instagram')) return 'instagram';
+  if(url.includes('twitter')||url.includes('x.com')) return 'twitter';
+  if(url.includes('facebook')) return 'facebook';
+  if(url.includes('linkedin')) return 'linkedin';
+  if(url.includes('youtube')) return 'youtube';
+  if(url.includes('github')) return 'github';
+  if(url.includes('tiktok')) return 'tiktok';
+  return 'website';
+}
+
+function capitalizeFirst(str){
+  return str.charAt(0).toUpperCase()+str.slice(1);
+}
+
+window.removeGalleryImage=async(index)=>{
+  if(!isOwner) return;
+  const newGallery=[...(profileData.gallery||[])];
+  newGallery.splice(index,1);
+  await update(ref(db,'profiles/'+id),{gallery:newGallery});
+};
+
+// Profile Picture Change
+window.changeProfilePicture=()=>{
+  currentUploadType='pfp';
+  document.getElementById('uploadTitle').innerText='Change Profile Picture';
+  document.getElementById('uploadModal').classList.remove('hidden');
+};
+
+// Cover Photo Change
+window.changeCoverPhoto=()=>{
+  currentUploadType='cover';
+  document.getElementById('uploadTitle').innerText='Change Cover Photo';
+  document.getElementById('uploadModal').classList.remove('hidden');
+};
+
+// Open Upload Modal
+window.openUploadModal=(type)=>{
+  currentUploadType=type;
+  document.getElementById('uploadTitle').innerText=type==='gallery'?'Add Photo to Gallery':'Upload Image';
+  document.getElementById('uploadModal').classList.remove('hidden');
+};
+
+// Close Upload Modal
+window.closeUploadModal=()=>{
+  document.getElementById('uploadModal').classList.add('hidden');
+  document.getElementById('imageUrlInput').value='';
+};
+
+// Confirm Image Upload
+window.confirmImageUpload=async()=>{
+  const url=document.getElementById('imageUrlInput').value.trim();
+  if(!url) return alert('Please enter an image URL');
+  
+  if(currentUploadType==='pfp'){
+    await update(ref(db,'profiles/'+id),{pfp:url});
+  }else if(currentUploadType==='cover'){
+    await update(ref(db,'profiles/'+id),{cover:url});
+  }else if(currentUploadType==='gallery'){
+    const newGallery=[...(profileData.gallery||[]),url];
+    await update(ref(db,'profiles/'+id),{gallery:newGallery});
+  }
+  
+  closeUploadModal();
+};
+
+// File Input Handler
+document.getElementById('fileInput').addEventListener('change',async(e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const dataUrl=e.target.result;
+    if(currentUploadType==='pfp'){
+      await update(ref(db,'profiles/'+id),{pfp:dataUrl});
+    }else if(currentUploadType==='cover'){
+      await update(ref(db,'profiles/'+id),{cover:dataUrl});
+    }else if(currentUploadType==='gallery'){
+      const newGallery=[...(profileData.gallery||[]),dataUrl];
+      await update(ref(db,'profiles/'+id),{gallery:newGallery});
+    }
+    closeUploadModal();
+  };
+  reader.readAsDataURL(file);
+});
+
+// Add Link Modal
+window.openAddLinkModal=()=>{
+  document.getElementById('linkModal').classList.remove('hidden');
+  document.getElementById('linkUrlInput').value='';
+  setTimeout(()=>document.getElementById('linkUrlInput').focus(),100);
+};
+
+window.closeLinkModal=()=>{
+  document.getElementById('linkModal').classList.add('hidden');
+};
+
+window.confirmAddLink=async()=>{
+  const url=document.getElementById('linkUrlInput').value.trim();
+  if(!url) return alert('Please enter a URL');
+  if(!url.startsWith('http')) return alert('URL must start with http:// or https://');
+  
+  const newSocials=[...(profileData.socials||[]),{url:url}];
+  await update(ref(db,'profiles/'+id),{socials:newSocials});
+  closeLinkModal();
+};
+
+// Background Customization
+window.setBackground=async(bgKey)=>{
+  applyBackground(bgKey);
+  document.querySelectorAll('.bg-option').forEach(el=>el.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  if(isOwner){
+    await update(ref(db,'profiles/'+id),{background:bgKey});
+  }
+};
+
+window.openBgModal=()=>{
+  document.getElementById('bgModal').classList.remove('hidden');
+};
+
+window.closeBgModal=()=>{
+  document.getElementById('bgModal').classList.add('hidden');
+};
+
+// Image Preview
+window.previewImage=(src)=>{
+  document.getElementById('previewImage').src=src;
+  document.getElementById('previewModal').classList.remove('hidden');
+};
+
+window.closeImagePreview=()=>{
+  document.getElementById('previewModal').classList.add('hidden');
+};
+
+// Edit Button Handler
+document.getElementById('editBtn').onclick=()=>{
+  if(!profileData) return;
+  
+  if(isOwner){
+    // Toggle edit mode off
+    isOwner=false;
+    document.getElementById('editIndicator').classList.remove('active');
+    document.getElementById('templateSelector').classList.add('hidden');
+    document.querySelectorAll('.change-pfp-btn, .change-cover-btn, .add-link-btn').forEach(el=>{
+      el.classList.add('hidden');
+    });
+    document.querySelectorAll('[contenteditable]').forEach(el=>{
+      el.contentEditable=false;
+    });
+    // Remove add photo buttons
+    document.querySelectorAll('.add-photo-btn').forEach(el=>el.remove());
+    render();
+  }else{
+    document.getElementById('authModal').classList.remove('hidden');
+    document.getElementById('passwordInput').value='';
+    document.getElementById('error').innerText='';
+    setTimeout(()=>document.getElementById('passwordInput').focus(),100);
+  }
+};
+
+// Enter key on password input
+document.getElementById('passwordInput').addEventListener('keypress',(e)=>{
+  if(e.key==='Enter') unlock();
+});
+
+// Enter key on link input
+document.getElementById('linkUrlInput').addEventListener('keypress',(e)=>{
+  if(e.key==='Enter') confirmAddLink();
+});
+
+// Long press on FAB for background customization
+let pressTimer;
+const fab=document.getElementById('editBtn');
+
+fab.addEventListener('mousedown',()=>{
+  pressTimer=setTimeout(()=>{openBgModal();},800);
+});
+fab.addEventListener('mouseup',()=>{clearTimeout(pressTimer);});
+fab.addEventListener('touchstart',()=>{
+  pressTimer=setTimeout(()=>{openBgModal();},800);
+});
+fab.addEventListener('touchend',()=>{clearTimeout(pressTimer);});
+
+// Click on profile picture to preview
+document.querySelectorAll('.pfp').forEach(pfp=>{
+  pfp.addEventListener('click',()=>{
+    if(profileData&&profileData.pfp){
+      previewImage(profileData.pfp);
+    }
+  });
+});
+</script>
+</body>
+</html>
